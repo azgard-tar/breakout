@@ -1,0 +1,10 @@
+/Users/UAzgard/Projects/Furniture/Furniture/bin/Debug/netcoreapp3.1/Furniture.deps.json
+/Users/UAzgard/Projects/Furniture/Furniture/bin/Debug/netcoreapp3.1/Furniture.runtimeconfig.json
+/Users/UAzgard/Projects/Furniture/Furniture/bin/Debug/netcoreapp3.1/Furniture.runtimeconfig.dev.json
+/Users/UAzgard/Projects/Furniture/Furniture/bin/Debug/netcoreapp3.1/Furniture.dll
+/Users/UAzgard/Projects/Furniture/Furniture/bin/Debug/netcoreapp3.1/Furniture.pdb
+/Users/UAzgard/Projects/Furniture/Furniture/obj/Debug/netcoreapp3.1/Furniture.csprojAssemblyReference.cache
+/Users/UAzgard/Projects/Furniture/Furniture/obj/Debug/netcoreapp3.1/Furniture.AssemblyInfoInputs.cache
+/Users/UAzgard/Projects/Furniture/Furniture/obj/Debug/netcoreapp3.1/Furniture.AssemblyInfo.cs
+/Users/UAzgard/Projects/Furniture/Furniture/obj/Debug/netcoreapp3.1/Furniture.dll
+/Users/UAzgard/Projects/Furniture/Furniture/obj/Debug/netcoreapp3.1/Furniture.pdb

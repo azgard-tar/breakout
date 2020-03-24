@@ -1,0 +1,25 @@
+﻿<Properties StartupConfiguration="{D5268817-65E3-460E-B45D-D2B31D8936FC}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="qwe/Program.cs">
+    <Files>
+      <File FileName="qwe/Program.cs" Line="13" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="qwe" expanded="True">
+            <Node name="qwe" expanded="True">
+              <Node name="Program.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.qwe FirstBuild="True" PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>
