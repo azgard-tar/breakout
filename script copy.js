@@ -13,10 +13,6 @@ function game(){
 		let cntx = c.getContext("2d"); // контекст - набор инструментов( функций ) рисования для 2d графики
 	// }
 
-	var imgList = ["https://delo.ua/files/news/images/3441/67/picture2_konditerskaja-kom_344167_p0.jpg",
-				"https://the-spain.com/uploads/images/node/cover/rozhdestvenskie-sladosti-ispanii1.jpg",
-				"https://i.pinimg.com/originals/f9/1e/23/f91e231288e1550faf14261c829942cb.jpg"];
-	
 
 	let levels = [[ 
 			[1,0,0,0,0,0,1],
@@ -73,26 +69,26 @@ function game(){
 		widthIncr : c.width/60,
 		speed : c.width/200, // на сколько пикселей сдвинется платформа за 1 нажатие 
 		clearPlatf : function(){
-			this.drawPlatf( "#FFFFFF", this.width + this.speed * 2, this.height + 3 , this.x + -3 );
+			platform.drawPlatf( "#FFFFFF", platform.width + platform.speed * 2, platform.height + 3 , platform.x + -3 );
 		},
 		movingPlatf : function( left = true ){
-			this.clearPlatf();
+			platform.clearPlatf();
 			if( ball.atachedToPlatform )
 				ball.clearBall();
-			this.x += left ? this.speed : this.speed * -1 ; // сдвиг
-			this.drawPlatf(); // рисование в новом месте
+			platform.x += left ? platform.speed : platform.speed * -1 ; // сдвиг
+			platform.drawPlatf(); // рисование в новом месте
 			if( ball.atachedToPlatform )
 				ball.atachedBall();
 		},
 		drawPlatf : function( color, width,height, x){
 			cntx.beginPath();
 			if( width ) {
-				cntx.rect(x, this.y, width, height);
+				cntx.rect(x, platform.y, width, height);
 				cntx.fillStyle = color
 			}
 			else{
-				cntx.rect(this.x,this.y, this.width, this.height);
-				cntx.fillStyle = this.color;	
+				cntx.rect(platform.x,platform.y, platform.width, platform.height);
+				cntx.fillStyle = platform.color;	
 			}
 			cntx.fill();
 		}
@@ -170,17 +166,18 @@ function game(){
 
 		},
 		clearBall : function(){
-			this.drawBall( "#FFFFFF", ball.radius + 1);
+			ball.drawBall( "#FFFFFF", ball.radius + 1);
 		},
 		atachedBall : function(){ // старт 
-			this.x = platform.x + platform.width/2;
-			this.y = platform.y - this.radius * 1.1;
-			this.drawBall();
+			ball.score = 0;
+			ball.x = platform.x + platform.width/2;
+			ball.y = platform.y - ball.radius * 1.1;
+			ball.drawBall();
 		},
 		drawBall : function( color, radius ){
 			cntx.beginPath();
-			cntx.arc(this.x,this.y, radius || this.radius ,0,2*Math.PI,false);
-			cntx.fillStyle = color || this.color;
+			cntx.arc(ball.x,ball.y, radius || ball.radius ,0,2*Math.PI,false);
+			cntx.fillStyle = color || ball.color;
 			cntx.fill();
 		}
 	});
@@ -205,7 +202,6 @@ function game(){
 		platform.speed = platform.startSpeed;
 		ball.vX = ball.startV;
 		ball.vY = ball.startV;
-		ball.score = 0;
 		Math.random() > 0.5 && ( ball.vX *= -1 );
 
 		writeScore(0);
@@ -217,7 +213,7 @@ function game(){
 					oneBlock.showBlock();
 	}
 
-	function block(x = 0, y = 0,hp = 1, width = c.width/8, height = c.height/25 ){ // конструктор блоков
+	function block(x = 0, y = 0, width = c.width/10, height = c.height/30, hp = 1 ){ // конструктор блоков
 		// Все эти параметри уникальны для каждого блока
 		this.x = ( c.width/2 - width/2) + ( width + 5 ) * x; 
 		this.y = ( c.height*1/5 - height/2 ) + ( height + 10) * y;
@@ -232,7 +228,7 @@ function game(){
 		if( this.currentHp > 0 ) {
 			cntx.beginPath();
 			cntx.rect( this.x , this.y, this.width,this.height );
-			/*switch( this.currentHp ){
+			switch( this.currentHp ){
 				case 1:
 					cntx.fillStyle = "#FF0000";
 				break;
@@ -242,14 +238,11 @@ function game(){
 				case 3:
 					cntx.fillStyle = "#0000FF";
 				break;
-			}*/
-			
-			//cntx.font = "12pt Calibri";
-			//cntx.fillStyle =  "#000000" ;
-			//cntx.fillText( this.currentHp, this.x + this.width*7/16, this.y + this.height*5/8);
+			}
 			cntx.fill();
-			
-
+			cntx.font = "12pt Calibri";
+			cntx.fillStyle =  "#000000" ;
+			cntx.fillText( this.currentHp, this.x + this.width*7/16, this.y + this.height*5/8);
 		}
 	}
 
@@ -269,18 +262,11 @@ function game(){
 	
 	function createLevel( array ){ // создает массив блоков на основе карты 
 		let resArray = [[],[],[],[],[],[],[]];
-		let imgVal = getRandomInt(3);
 		for( let i = -3, k = 0; k < 7; i++, k++ ){
 			for( let j = -3, l = 0; l < 7; j++, l++ ){
-				if( array[k][l] != 0 ){
+				if( array[k][l] == 1 ){
 					resArray[k][l] = new block(j,i);
 					block.prototype.countOfBlocks++;
-					var imgFirst= new Image();
-					imgFirst.addEventListener("load",function(){
-						cntx.drawImage(imgFirst, 20, 20, resArray[k][l].width * 5,resArray[k][l].height * 5,resArray[k][l].x,resArray[k][l].y,resArray[k][l].width,resArray[k][l].height );
-					});
-
-					imgFirst.src = imgList[imgVal];
 				}
 			}
 		}
@@ -379,16 +365,15 @@ function game(){
 		})();
 
 		var startGame = function() {
-
 			gameLoop();
 			Restart();
 		}
 
 		var gameLoop = function() {
-			//console.time("test");
+			console.time("test");
 			oneLoopGame();
 			__renderer(gameLoop);
-			//console.timeEnd("test");
+			console.timeEnd("test");
 		}
 	// }
 	startGame();
