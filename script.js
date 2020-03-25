@@ -32,9 +32,9 @@ function game(){
 			[1,0,1,1,1,0,1],
 			[0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0],
+			[0,0,0,1,0,0,0],
 			[0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0],
-			[0,0,0,1,0,0,0]
+			[0,0,0,0,0,0,0]
 			],[ 
 			[0,0,0,0,0,0,0],
 			[0,1,1,0,1,1,0],
@@ -109,6 +109,7 @@ function game(){
 		vY : -c.height/600,
 		startV : c.width/600,
 		speedIncr : c.width/6000,
+		startRadius : c.width/60,
 		score : 0,
 		isCollision : function(x1,y1,w1,h1,x2,y2,w2,h2){
 			return ( x1 < x2 + w2 &&
@@ -132,7 +133,7 @@ function game(){
 								ball.vX *= -1;
 							else
 								ball.vY *= -1;
-							//if( getRandomInt(5) == 2 )
+							if( getRandomInt(3) == 0 )
 								bonuses.push( new bonus( brick.x + brick.width/2 , typeOfBonuses[ getRandomInt( typeOfBonuses.length ) ] ) );
 							// Попали в блок
 							brick.hitBlock(); // убираем его
@@ -159,9 +160,14 @@ function game(){
 				alert( "Вы выиграли! И за это вы получаете целое ничего!\n Поздравляю! " ) ;
 				Restart();
 			}
-			else if( ball.y > c.height * 1.1 ) { // мяч улетел вниз 
-				Restart()
-			}
+			else if( ball.y > platform.y  ) { // мяч улетел вниз 
+				if( ball.y < c.height )
+					ball.radius -= ball.startRadius/100;
+				else{
+
+					Restart()
+				}
+			} 
 
 			
 			if( ! ball.atachedToPlatform ) { // физика движения 
@@ -176,6 +182,12 @@ function game(){
 			writeScore( ball.score );
 
 		},
+		animationShowing : function(){
+			ball.radius += (ball.startRadius/100) ;
+			ball.atachedBall();
+			if( ball.radius < 10 )
+				setTimeout(ball.animationShowing,10);
+		},
 		clearBall : function(){
 			this.drawBall( "#FFFFFF", ball.radius + 1);
 		},
@@ -185,9 +197,11 @@ function game(){
 			this.drawBall();
 		},
 		drawBall : function( color, radius ){
+			if( ball.radius < 0 )
+				return;
 			cntx.beginPath();
-			cntx.arc(this.x,this.y, radius || this.radius ,0,2*Math.PI,false);
-			cntx.fillStyle = color || this.color;
+			cntx.arc(ball.x,ball.y, radius || ball.radius ,0,2*Math.PI,false);
+			cntx.fillStyle = color || ball.color;
 			cntx.fill();
 		}
 	});
@@ -218,6 +232,8 @@ function game(){
 
 		writeScore(0);
 		platform.drawPlatf();
+		ball.radius = 0;
+		ball.animationShowing();
 		ball.atachedBall(); 
 		for( let oneRow of blocks )
 			for( let oneBlock of oneRow )
