@@ -164,7 +164,6 @@ function game(){
 				if( ball.y < c.height )
 					ball.radius -= ball.startRadius/100;
 				else{
-
 					Restart()
 				}
 			} 
@@ -347,16 +346,16 @@ function game(){
 	bonus.prototype.hit = function(){
 		switch( this.kindActivity ) {
 			case "widthIncr":
-				platform.width += platform.widthIncr ;
+				platform.width += platform.widthIncr * 2;
 			break;
 			case "widthDecr":
-				platform.width -= platform.widthIncr ;
+				platform.width -= platform.widthIncr * 2;
 			break;
 			case "speedUp":
-				platform.speed > 0 ? platform.speed += platform.speedIncr : platform.speed-= platform.speedIncr;
+				platform.speed > 0 ? platform.speed += platform.speedIncr * 2 : platform.speed -= platform.speedIncr * 2;
 			break;
 			case "speedDown":
-				platform.speed > 0 ? platform.speed -= platform.speedIncr : platform.speed += platform.speedIncr;
+				platform.speed > 0 ? platform.speed -= platform.speedIncr * 2 : platform.speed += platform.speedIncr * 2;
 			break;
 		}
 	}
@@ -364,15 +363,16 @@ function game(){
 	var bonuses = [];
 	function moveBonuses(){
 		for( let k = 0; k < bonuses.length; k++ ){
-			var temp = bonuses[k].y + bonuses[k].height + bonuses[k].speedMoving ;
 			bonuses[k].show( "#FFFFFF", bonuses[k].x - 2 , bonuses[k].y - 2, bonuses[k].width + 4 , bonuses[k].height + 4 );
 
-			if( temp > platform.y )
-				if( bonuses[k].x > platform.x && bonuses[k].x + bonuses[k].width < platform.x + platform.width && ! bonuses[k].hitStatus ){
-					bonuses[k].hit( platform.y, platform.height ) ;
+			if( bonuses[k].y + bonuses[k].height > platform.y )
+				if( bonuses[k].x + bonuses[k].width > platform.x && bonuses[k].x - bonuses[k].width < platform.x + platform.width && ! bonuses[k].hitStatus ){
+					console.log( platform.speed + " " + platform.width );
+					bonuses[k].hit() ;
+					console.log( platform.speed + " " + platform.width );
 					bonuses[k].hitStatus = true;
 				}
-				else
+				else 
 					bonuses.splice(k,1);
 			else {
 				bonuses[k].y += bonuses[k].speedMoving;
