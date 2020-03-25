@@ -13,11 +13,12 @@ function game(){
 		let cntx = c.getContext("2d"); // контекст - набор инструментов( функций ) рисования для 2d графики
 	// }
 
-	var imgList = ["https://delo.ua/files/news/images/3441/67/picture2_konditerskaja-kom_344167_p0.jpg",
+	var imgListForBlocks = ["https://art-oboi.com.ua/img/gallery/89/thumbs/thumb_l_psh_00005205.jpg", // ссылки на картинки для блоков
 				"https://the-spain.com/uploads/images/node/cover/rozhdestvenskie-sladosti-ispanii1.jpg",
 				"https://i.pinimg.com/originals/f9/1e/23/f91e231288e1550faf14261c829942cb.jpg"];
+	var typeOfBonuses = ["speedUp","speedDown","widthIncr","widthDecr" ];
 	
-
+	// уровни
 	let levels = [[ 
 			[1,0,0,0,0,0,1],
 			[0,1,0,0,0,1,0],
@@ -99,7 +100,7 @@ function game(){
 	});
 
 	var ball = new Object({
-		x : -9999, // -9999 чтобы случайно не зачистить нужное поле в вызове atachedBall()
+		x : -9999, 
 		y : -9999,
 		radius : c.width/60,
 		color : "#FF0000",
@@ -131,6 +132,8 @@ function game(){
 								ball.vX *= -1;
 							else
 								ball.vY *= -1;
+							//if( getRandomInt(5) == 2 )
+								bonuses.push( new bonus( brick.x + brick.width/2 , typeOfBonuses[ getRandomInt( typeOfBonuses.length ) ] ) );
 							// Попали в блок
 							brick.hitBlock(); // убираем его
 							ball.score++; // Засчитываем попадение
@@ -138,9 +141,13 @@ function game(){
 							ball.vY > 0 ? ball.vY += ball.speedIncr : ball.vY -= ball.speedIncr;
 							platform.speed += platform.speedIncr;
 							platform.width += platform.widthIncr;
+
+							
 						}
 					}
 				}
+
+			moveBonuses();
 
 			// Попадение в платформу
 			if( ball.isCollision( ball.x - ball.radius + ball.vX , ball.y - ball.radius + ball.vY, ball.radius * 2, ball.radius * 2, platform.x, platform.y, platform.width,platform.height ) ) // вверх и низ платформы
@@ -206,6 +213,7 @@ function game(){
 		ball.vX = ball.startV;
 		ball.vY = ball.startV;
 		ball.score = 0;
+		bonuses = [];
 		Math.random() > 0.5 && ( ball.vX *= -1 );
 
 		writeScore(0);
@@ -275,35 +283,107 @@ function game(){
 				if( array[k][l] != 0 ){
 					resArray[k][l] = new block(j,i);
 					block.prototype.countOfBlocks++;
+					// ставим картинку
 					var imgFirst= new Image();
 					imgFirst.addEventListener("load",function(){
 						cntx.drawImage(imgFirst, 20, 20, resArray[k][l].width * 5,resArray[k][l].height * 5,resArray[k][l].x,resArray[k][l].y,resArray[k][l].width,resArray[k][l].height );
 					});
 
-					imgFirst.src = imgList[imgVal];
+					imgFirst.src = imgListForBlocks[imgVal];
 				}
 			}
 		}
 		return resArray;
 	}
 
+	// Бонусы
+	function bonus( x , kindActivity = "None",  y = c.height * 2/6, width = c.width / 30, height = c.width / 30 ){
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.kindActivity = kindActivity;
+		this.speedMoving = 0.3;
+		this.color = "#000000";
+		this.hitStatus = false;
+		switch( kindActivity ){
+			case "None":
+				this.color = "#F000FF";
+			break;
+			case "widthIncr":
+			case "speedUp":
+				this.color = "#00FF00";
+				this.speedMoving = 0.4;
+			break;
+			case "widthDecr":
+			case "speedDown":
+				this.color = "#FF0000";
+				this.speedMoving = 0.2;
+			break;
+		}
+	}
+	bonus.prototype.show = function( color, x, y, width, height ){
+		cntx.beginPath();
+		cntx.rect( x || this.x, y || this.y,width || this.width, height || this.height);
+		cntx.fillStyle = color || this.color;
+		cntx.fill();
+	}
+	bonus.prototype.hit = function(){
+		switch( this.kindActivity ) {
+			case "widthIncr":
+				platform.width += platform.widthIncr ;
+			break;
+			case "widthDecr":
+				platform.width -= platform.widthIncr ;
+			break;
+			case "speedUp":
+				platform.speed > 0 ? platform.speed += platform.speedIncr : platform.speed-= platform.speedIncr;
+			break;
+			case "speedDown":
+				platform.speed > 0 ? platform.speed -= platform.speedIncr : platform.speed += platform.speedIncr;
+			break;
+		}
+	}
+
+	var bonuses = [];
+	function moveBonuses(){
+		for( let k = 0; k < bonuses.length; k++ ){
+			var temp = bonuses[k].y + bonuses[k].height + bonuses[k].speedMoving ;
+			bonuses[k].show( "#FFFFFF", bonuses[k].x - 2 , bonuses[k].y - 2, bonuses[k].width + 4 , bonuses[k].height + 4 );
+
+			if( temp > platform.y )
+				if( bonuses[k].x > platform.x && bonuses[k].x + bonuses[k].width < platform.x + platform.width && ! bonuses[k].hitStatus ){
+					bonuses[k].hit( platform.y, platform.height ) ;
+					bonuses[k].hitStatus = true;
+				}
+				else
+					bonuses.splice(k,1);
+			else {
+				bonuses[k].y += bonuses[k].speedMoving;
+				bonuses[k].show();
+			}
+		}
+	}
+
+
+
 	// главный функционал игры 
 	var oneLoopGame = function(){
 		
 		if( isKeyDown("ArrowLeft") ) {
 			if( platform.x> 0 ) {
-				platform.movingPlatf(false);
+				platform.movingPlatf(false); // движение влево
 			}
 		}
 		if( isKeyDown("ArrowRight") ) {
 			if( platform.x + platform.width < c.width ) {
-				platform.movingPlatf();
+				platform.movingPlatf(); // движение вправо 
 			}
 		}
 		if( isKeyDown("Space") ) {
 			if( ball.atachedToPlatform )
 			{
-				ball.atachedToPlatform = false;
+				ball.atachedToPlatform = false; // запуск шарика
 				ball.movingBall();
 			}
 		}
