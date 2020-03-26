@@ -13,49 +13,49 @@ function game(){
 		let cntx = c.getContext("2d"); // контекст - набор инструментов( функций ) рисования для 2d графики
 	// }
 
-	var imgListForBlocks = ["https://art-oboi.com.ua/img/gallery/89/thumbs/thumb_l_psh_00005205.jpg", // ссылки на картинки для блоков
-				"https://the-spain.com/uploads/images/node/cover/rozhdestvenskie-sladosti-ispanii1.jpg",
-				"https://i.pinimg.com/originals/f9/1e/23/f91e231288e1550faf14261c829942cb.jpg"];
+	var imgListForBlocks = ["https://finecooking.ru/images/recipe/800/halva-podsolnechnaya.jpg", // ссылки на картинки для блоков
+				"https://image.freepik.com/free-photo/_23-2147717511.jpg",
+				"https://i.7fon.org/thumb/z136673.jpg"];
 	var typeOfBonuses = ["speedUp","speedDown","widthIncr","widthDecr" ];
 	
 	// уровни
 	let levels = [[ 
 			[1,0,0,0,0,0,1],
 			[0,1,0,0,0,1,0],
-			[0,0,1,0,1,0,0],
-			[0,0,0,1,0,0,0],
-			[0,0,1,0,1,0,0],
+			[0,0,2,0,2,0,0],
+			[0,0,0,3,0,0,0],
+			[0,0,2,0,2,0,0],
 			[0,1,0,0,0,1,0],
 			[1,0,0,0,0,0,1]
 			],[ 
-			[0,0,0,1,0,0,0],
-			[1,0,1,1,1,0,1],
+			[0,0,0,2,0,0,0],
+			[1,0,2,3,2,0,1],
 			[0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0],
+			[0,0,2,0,2,0,0],
 			[0,0,0,1,0,0,0],
 			[0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0]
 			],[ 
 			[0,0,0,0,0,0,0],
-			[0,1,1,0,1,1,0],
-			[0,1,1,0,1,1,0],
+			[0,1,2,0,2,1,0],
+			[0,2,3,0,3,2,0],
 			[0,0,0,0,0,0,0],
 			[0,1,0,0,0,1,0],
-			[0,0,1,1,1,0,0],
+			[0,0,1,2,1,0,0],
 			[0,0,0,0,0,0,0]
 			],[ 
 			[0,0,0,0,0,0,0],
 			[0,0,1,0,1,0,0],
-			[0,1,1,1,1,1,0],
-			[0,1,1,1,1,1,0],
-			[0,0,1,1,1,0,0],
+			[0,1,2,1,2,1,0],
+			[0,1,2,2,2,1,0],
+			[0,0,1,2,1,0,0],
 			[0,0,0,1,0,0,0],
 			[0,0,0,0,0,0,0]
 			],[ 
 			[0,0,0,0,0,0,0],
 			[0,0,0,1,0,0,0],
-			[0,0,1,1,1,0,0],
-			[0,1,1,1,1,1,0],
+			[0,0,1,2,1,0,0],
+			[0,1,2,3,2,1,0],
 			[1,1,1,1,1,1,1],
 			[0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0]
@@ -142,7 +142,7 @@ function game(){
 							ball.vY > 0 ? ball.vY += ball.speedIncr : ball.vY -= ball.speedIncr;
 							platform.speed += platform.speedIncr;
 							platform.width += platform.widthIncr;
-
+							platform.drawPlatf();
 							
 						}
 					}
@@ -220,7 +220,7 @@ function game(){
 		ball.atachedToPlatform = true; 
 		block.prototype.countOfBlocks = 0;
 		cntx.clearRect(0,0,c.width, c.height);
-		blocks = createLevel(levels[getRandomInt(4) + 1]);
+		blocks = createLevel(levels[getRandomInt(4)]);
 		platform.width = platform.startWidth;
 		platform.speed = platform.startSpeed;
 		ball.vX = ball.startV;
@@ -246,35 +246,25 @@ function game(){
 		this.y = ( c.height*1/5 - height/2 ) + ( height + 10) * y;
 		this.width = width;
 		this.height = height;
-		this.maxHp = hp;
 		this.currentHp = hp;
 	}
 
 	block.prototype.showBlock = function( ){ // функция в prototype - она одна для всех. Прорисовка блока
 		cntx.clearRect( this.x - 2 , this.y - 2 , this.width + 4,this.height + 4 );
-		if( this.currentHp > 0 ) {
-			cntx.beginPath();
-			cntx.rect( this.x , this.y, this.width,this.height );
-			/*switch( this.currentHp ){
-				case 1:
-					cntx.fillStyle = "#FF0000";
-				break;
-				case 2:
-					cntx.fillStyle = "#00FF00";
-				break;
-				case 3:
-					cntx.fillStyle = "#0000FF";
-				break;
-			}*/
-			
-			//cntx.font = "12pt Calibri";
-			//cntx.fillStyle =  "#000000" ;
-			//cntx.fillText( this.currentHp, this.x + this.width*7/16, this.y + this.height*5/8);
-			cntx.fill();
-			
-
-		}
+		if( this.currentHp > 0 ) 
+			drawImg( this );
+		
 	}
+
+	function drawImg( block ){
+		var imgFirst= new Image();
+		imgFirst.addEventListener("load",function(){
+			cntx.drawImage(imgFirst, 50, 50, block.width * 5,block.height * 5,block.x,block.y,block.width,block.height );
+		});
+
+		imgFirst.src = imgListForBlocks[block.currentHp-1];
+	}
+
 
 	block.prototype.hitBlock = function(){ // отработка попадения в блок
 		this.currentHp--;
@@ -284,7 +274,7 @@ function game(){
 			this.x = -200;
 			this.y = -200;
 		}
-		this.showBlock();
+		//this.showBlock();
 	}
 	block.prototype.countOfBlocks = 0;
 
@@ -292,19 +282,19 @@ function game(){
 	
 	function createLevel( array ){ // создает массив блоков на основе карты 
 		let resArray = [[],[],[],[],[],[],[]];
-		let imgVal = getRandomInt(3);
+		let imgVal = getRandomInt(imgListForBlocks.length);
 		for( let i = -3, k = 0; k < 7; i++, k++ ){
 			for( let j = -3, l = 0; l < 7; j++, l++ ){
 				if( array[k][l] != 0 ){
-					resArray[k][l] = new block(j,i);
-					block.prototype.countOfBlocks++;
+					resArray[k][l] = new block(j,i, array[k][l]);
+					block.prototype.countOfBlocks += array[k][l];
 					// ставим картинку
-					var imgFirst= new Image();
+					/*var imgFirst= new Image();
 					imgFirst.addEventListener("load",function(){
-						cntx.drawImage(imgFirst, 20, 20, resArray[k][l].width * 5,resArray[k][l].height * 5,resArray[k][l].x,resArray[k][l].y,resArray[k][l].width,resArray[k][l].height );
+						cntx.drawImage(imgFirst, 50, 50, resArray[k][l].width * 5,resArray[k][l].height * 5,resArray[k][l].x,resArray[k][l].y,resArray[k][l].width,resArray[k][l].height );
 					});
 
-					imgFirst.src = imgListForBlocks[imgVal];
+					imgFirst.src = imgListForBlocks[imgVal];*/
 				}
 			}
 		}
@@ -342,6 +332,21 @@ function game(){
 		cntx.rect( x || this.x, y || this.y,width || this.width, height || this.height);
 		cntx.fillStyle = color || this.color;
 		cntx.fill();
+		cntx.font = "12pt Calibri";
+		cntx.fillStyle =  color || "#000000" ;
+		var temp = "";
+		switch( this.kindActivity ){
+			case "widthDecr":
+			case "widthIncr":
+				temp = "W";
+			break;
+			case "speedDown":
+			case "speedUp":
+				temp = "S";
+			break;
+		}
+		cntx.fillText( temp, this.x + this.width*7/16, this.y + this.height*5/8);
+		
 	}
 	bonus.prototype.hit = function(){
 		switch( this.kindActivity ) {
@@ -358,6 +363,7 @@ function game(){
 				platform.speed > 0 ? platform.speed -= platform.speedIncr * 2 : platform.speed += platform.speedIncr * 2;
 			break;
 		}
+		platform.drawPlatf();
 	}
 
 	var bonuses = [];
@@ -397,10 +403,11 @@ function game(){
 			}
 		}
 		if( isKeyDown("Space") ) {
-			if( ball.atachedToPlatform )
+			if( ball.atachedToPlatform && ball.radius > 10)
 			{
 				ball.atachedToPlatform = false; // запуск шарика
 				ball.movingBall();
+				currentKeyDown = "";
 			}
 		}
 		
