@@ -11,56 +11,128 @@ function game(){
 		else
 			c.height = c.width = document.documentElement.clientHeight - 100;
 		let cntx = c.getContext("2d"); // контекст - набор инструментов( функций ) рисования для 2d графики
+		c.style = "margin: 0 " + (document.documentElement.clientWidth - c.width - 10)/2 + "px";
 	// }
 
 	var imgListForBlocks = ["https://finecooking.ru/images/recipe/800/halva-podsolnechnaya.jpg", // ссылки на картинки для блоков
 				"https://image.freepik.com/free-photo/_23-2147717511.jpg",
 				"https://i.7fon.org/thumb/z136673.jpg"];
-	var typeOfBonuses = ["speedUp","speedDown","widthIncr","widthDecr" ];
+	var typeOfBonuses = [ "speedUp", "speedDown", "widthIncr", "widthDecr" ];
 	
 	// уровни
-	let levels = [[ 
+	let levels1 = [[ 
 			[1,0,0,0,0,0,1],
 			[0,1,0,0,0,1,0],
-			[0,0,2,0,2,0,0],
-			[0,0,0,3,0,0,0],
-			[0,0,2,0,2,0,0],
+			[0,0,1,0,1,0,0],
+			[0,0,0,1,0,0,0],
+			[0,0,1,0,1,0,0],
 			[0,1,0,0,0,1,0],
 			[1,0,0,0,0,0,1]
 			],[ 
-			[0,0,0,2,0,0,0],
-			[1,0,2,3,2,0,1],
+			[0,0,0,1,0,0,0],
+			[1,0,1,1,1,0,1],
 			[0,0,0,0,0,0,0],
-			[0,0,2,0,2,0,0],
+			[0,0,1,0,1,0,0],
 			[0,0,0,1,0,0,0],
 			[0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0]
 			],[ 
 			[0,0,0,0,0,0,0],
-			[0,1,2,0,2,1,0],
-			[0,2,3,0,3,2,0],
+			[0,1,1,0,1,1,0],
+			[0,1,1,0,1,1,0],
 			[0,0,0,0,0,0,0],
 			[0,1,0,0,0,1,0],
-			[0,0,1,2,1,0,0],
+			[0,0,1,1,1,0,0],
 			[0,0,0,0,0,0,0]
 			],[ 
 			[0,0,0,0,0,0,0],
 			[0,0,1,0,1,0,0],
-			[0,1,2,1,2,1,0],
-			[0,1,2,2,2,1,0],
-			[0,0,1,2,1,0,0],
+			[0,1,1,1,1,1,0],
+			[0,1,1,1,1,1,0],
+			[0,0,1,1,1,0,0],
 			[0,0,0,1,0,0,0],
 			[0,0,0,0,0,0,0]
 			],[ 
 			[0,0,0,0,0,0,0],
 			[0,0,0,1,0,0,0],
-			[0,0,1,2,1,0,0],
-			[0,1,2,3,2,1,0],
+			[0,0,1,1,1,0,0],
+			[0,1,1,1,1,1,0],
 			[1,1,1,1,1,1,1],
 			[0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0]
 			]];
 	let blocks = [];
+
+	let gameStructure = new Object({
+		currentLevel : -1,
+		levels : 
+		[
+			[ // лвл 1
+				[ // изи
+					[[1,0,1],[0,1,0],[1,0,1]],
+					[[0,1,0],[1,1,1],[0,1,0]],
+					[[1,1,0],[1,0,1],[0,1,1]]
+				], 
+				[ // средне
+					[[2,0,1],[1,2,1],[1,0,2]],
+					[[1,1,1],[1,2,1],[1,1,1]],
+					[[1,1,2],[1,0,1],[2,1,1]]
+				], 
+				[ // хард
+					[[3,1,2],[2,3,2],[2,1,3]],
+					[[2,2,2],[2,3,2],[2,2,2]],
+					[[2,2,3],[2,1,2],[3,2,2]]
+				] 
+			],
+			[ // лвл 2
+				[ 
+					[],
+					[],
+					[] 
+				], 
+				[ 
+					[],
+					[],
+					[]
+				], 
+				[ 
+					[],
+					[],
+					[]
+				] 
+			],
+			[ // лвл 3
+				[ 
+					[],
+					[],
+					[] 
+				], 
+				[ 
+					[],
+					[],
+					[]
+				], 
+				[ 
+					[],
+					[],
+					[]
+				] 
+			] 
+		],
+		goNextLevel : function(){
+			var nextLevel, lvl = ++gameStructure.currentLevel;
+			console.log( lvl );
+			nextLevel = gameStructure.levels[Math.floor( lvl / 10 )][ lvl % 10 ];
+			( lvl == 2 || lvl == 12 ) && ( gameStructure.currentLevel += 7 );
+			if( lvl == 22 || lvl == 2 ){ //---------------------------------temp--------------------------------
+				//Финиш 
+				gameStructure.currentLevel = -1; 
+			} 
+			
+			blocks = createLevel( nextLevel[getRandomInt(nextLevel.length) ] ) ;
+		}
+		
+	});
 
 	let platform = new Object({ // платформа которой игрок отбивает шарик 
 		x : c.width * 13/32, 
@@ -164,6 +236,8 @@ function game(){
 				if( ball.y < c.height )
 					ball.radius -= ball.startRadius/100;
 				else{
+					gameStructure.currentLevel > -1 && gameStructure.currentLevel--;
+					gameStructure.currentLevel == -1 && (gameStructure.currentLevel*=-1);
 					Restart()
 				}
 			} 
@@ -220,7 +294,8 @@ function game(){
 		ball.atachedToPlatform = true; 
 		block.prototype.countOfBlocks = 0;
 		cntx.clearRect(0,0,c.width, c.height);
-		blocks = createLevel(levels[getRandomInt(4)]);
+		//blocks = createLevel(levels[getRandomInt(4)]);
+		gameStructure.goNextLevel();
 		platform.width = platform.startWidth;
 		platform.speed = platform.startSpeed;
 		ball.vX = ball.startV;
@@ -259,7 +334,7 @@ function game(){
 	function drawImg( block ){
 		var imgFirst= new Image();
 		imgFirst.addEventListener("load",function(){
-			cntx.drawImage(imgFirst, 50, 50, block.width * 5,block.height * 5,block.x,block.y,block.width,block.height );
+			cntx.drawImage(imgFirst, 100, 100, block.width ,block.height ,block.x,block.y,block.width,block.height );
 		});
 
 		imgFirst.src = imgListForBlocks[block.currentHp-1];
@@ -282,19 +357,14 @@ function game(){
 	
 	function createLevel( array ){ // создает массив блоков на основе карты 
 		let resArray = [[],[],[],[],[],[],[]];
+		let width = c.width / ( array.length + 1 );
+		let height = c.height / ( ( array.length + 1 ) * 3 );
 		let imgVal = getRandomInt(imgListForBlocks.length);
-		for( let i = -3, k = 0; k < 7; i++, k++ ){
-			for( let j = -3, l = 0; l < 7; j++, l++ ){
+		for( let i = -Math.floor(array.length/2), k = 0; k < array.length; i++, k++ ){
+			for( let j = -Math.floor(array[k].length/2), l = 0; l < array[k].length ; j++, l++ ){
 				if( array[k][l] != 0 ){
-					resArray[k][l] = new block(j,i, array[k][l]);
+					resArray[k][l] = new block( j, i, array[k][l], width, height);
 					block.prototype.countOfBlocks += array[k][l];
-					// ставим картинку
-					/*var imgFirst= new Image();
-					imgFirst.addEventListener("load",function(){
-						cntx.drawImage(imgFirst, 50, 50, resArray[k][l].width * 5,resArray[k][l].height * 5,resArray[k][l].x,resArray[k][l].y,resArray[k][l].width,resArray[k][l].height );
-					});
-
-					imgFirst.src = imgListForBlocks[imgVal];*/
 				}
 			}
 		}
@@ -349,6 +419,7 @@ function game(){
 		
 	}
 	bonus.prototype.hit = function(){
+		platform.clearPlatf();
 		switch( this.kindActivity ) {
 			case "widthIncr":
 				platform.width += platform.widthIncr * 2;
@@ -373,9 +444,7 @@ function game(){
 
 			if( bonuses[k].y + bonuses[k].height > platform.y )
 				if( bonuses[k].x + bonuses[k].width > platform.x && bonuses[k].x - bonuses[k].width < platform.x + platform.width && ! bonuses[k].hitStatus ){
-					console.log( platform.speed + " " + platform.width );
 					bonuses[k].hit() ;
-					console.log( platform.speed + " " + platform.width );
 					bonuses[k].hitStatus = true;
 				}
 				else 
