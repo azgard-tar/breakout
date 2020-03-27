@@ -6,61 +6,123 @@ function game(){
 	// Связь с html
 	// {
 		let c = document.getElementById("cnv"); // наш канвас 
+		let together = document.getElementById("content");
+		let textScore = document.getElementById("score");
 		if( document.documentElement.clientHeight > document.documentElement.clientWidth )
 			c.height = c.width = document.documentElement.clientWidth - 100;
 		else
 			c.height = c.width = document.documentElement.clientHeight - 100;
 		let cntx = c.getContext("2d"); // контекст - набор инструментов( функций ) рисования для 2d графики
+		together.style = "margin: 0 " + (document.documentElement.clientWidth - c.width - 10)/2 + "px";
 	// }
 
 	var imgListForBlocks = ["https://finecooking.ru/images/recipe/800/halva-podsolnechnaya.jpg", // ссылки на картинки для блоков
 				"https://image.freepik.com/free-photo/_23-2147717511.jpg",
 				"https://i.7fon.org/thumb/z136673.jpg"];
-	var typeOfBonuses = ["speedUp","speedDown","widthIncr","widthDecr" ];
+	var typeOfBonuses = [ "speedUp", "speedDown", "widthIncr", "widthDecr" ];
 	
-	// уровни
-	let levels = [[ 
-			[1,0,0,0,0,0,1],
-			[0,1,0,0,0,1,0],
-			[0,0,2,0,2,0,0],
-			[0,0,0,3,0,0,0],
-			[0,0,2,0,2,0,0],
-			[0,1,0,0,0,1,0],
-			[1,0,0,0,0,0,1]
-			],[ 
-			[0,0,0,2,0,0,0],
-			[1,0,2,3,2,0,1],
-			[0,0,0,0,0,0,0],
-			[0,0,2,0,2,0,0],
-			[0,0,0,1,0,0,0],
-			[0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0]
-			],[ 
-			[0,0,0,0,0,0,0],
-			[0,1,2,0,2,1,0],
-			[0,2,3,0,3,2,0],
-			[0,0,0,0,0,0,0],
-			[0,1,0,0,0,1,0],
-			[0,0,1,2,1,0,0],
-			[0,0,0,0,0,0,0]
-			],[ 
-			[0,0,0,0,0,0,0],
-			[0,0,1,0,1,0,0],
-			[0,1,2,1,2,1,0],
-			[0,1,2,2,2,1,0],
-			[0,0,1,2,1,0,0],
-			[0,0,0,1,0,0,0],
-			[0,0,0,0,0,0,0]
-			],[ 
-			[0,0,0,0,0,0,0],
-			[0,0,0,1,0,0,0],
-			[0,0,1,2,1,0,0],
-			[0,1,2,3,2,1,0],
-			[1,1,1,1,1,1,1],
-			[0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0]
-			]];
 	let blocks = [];
+
+	let gameStructure = new Object({
+		currentLevel : 0,
+		repeatLevel : true,
+		levelBonuses : [
+			["speedUp","widthIncr"],
+			["speedUp", "speedDown", "widthIncr", "widthDecr"],
+			["speedUp", "speedDown", "widthIncr", "widthDecr"]
+		],
+		levels : 
+		[
+			[ // лвл 1
+				[ // изи
+					[[1,0,1],[0,1,0],[1,0,1]],
+					[[0,1,0],[1,1,1],[0,1,0]],
+					[[1,1,0],[1,0,1],[0,1,1]]
+				], 
+				[ // средне
+					[[2,0,1],[1,2,1],[1,0,2]],
+					[[1,1,1],[1,2,1],[1,1,1]],
+					[[1,1,2],[1,0,1],[2,1,1]]
+				], 
+				[ // хард
+					[[3,1,2],[2,3,2],[2,1,3]],
+					[[2,2,2],[2,3,2],[2,2,2]],
+					[[2,2,3],[2,1,2],[3,2,2]]
+				] 
+			],
+			[ // лвл 2
+				[ 
+					[[0,1,1,1,0],[1,1,0,1,1],[1,0,1,0,1],[1,1,0,1,1],[0,1,1,1,0]],
+					[[1,0,1,0,1],[0,1,0,1,0],[0,1,1,1,0],[1,1,0,1,1],[0,0,0,0,0]],
+					[[0,0,1,0,0],[0,1,1,1,0],[1,0,1,0,1],[0,1,1,1,0],[0,0,1,0,0]] 
+				], 
+				[ 
+					[[0,2,1,2,0],[1,2,0,2,1],[1,2,3,2,1],[2,1,0,1,2],[3,1,1,1,3]],
+					[[2,0,3,0,2],[2,1,3,1,2],[2,1,3,1,2],[1,2,0,2,1],[2,0,2,0,2]],
+					[[0,2,1,2,0],[0,1,2,1,0],[1,2,3,2,1],[3,1,0,1,3],[3,0,1,0,3]] 
+				], 
+				[ 
+					[[1,0,0,0,0,0,1],[0,1,0,0,0,1,0],[0,0,1,0,1,0,0],[0,0,0,1,0,0,0],[0,0,1,0,1,0,0],[0,1,0,0,0,1,0],[1,0,0,0,0,0,1]],
+					[[0,0,0,0,0,0,0],[0,1,1,0,1,1,0],[0,1,1,0,1,1,0],[0,0,0,0,0,0,0],[0,1,0,0,0,1,0],[0,0,1,1,1,0,0],[0,0,0,0,0,0,0]],
+					[[0,0,0,0,0,0,0],[0,0,0,1,0,0,0],[0,0,1,1,1,0,0],[0,1,1,1,1,1,0],[1,1,1,1,1,1,1],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]]
+				] 
+			],
+			[ // лвл 3
+				[ 
+					[[1,0,0,0,0,0,1],[0,2,0,3,0,2,0],[0,0,2,0,2,0,0],[0,0,3,1,2,0,0],[0,2,1,0,1,2,0],[0,1,2,0,2,1,0],[1,0,0,3,0,0,1]],
+					[[0,0,0,0,0,0,0],[0,1,2,3,2,1,0],[0,2,1,2,1,2,0],[0,0,0,3,0,0,0],[2,1,0,2,0,1,2],[0,2,1,1,1,2,0],[0,0,2,1,2,0,0]],
+					[[0,0,0,0,0,0,0],[0,0,0,2,0,0,0],[0,0,3,1,3,0,0],[0,2,1,1,1,2,0],[3,1,1,1,1,1,3],[2,0,0,0,0,0,2],[0,2,0,3,0,2,0]]
+				], 
+				[ 
+					[[0,0,0,2,2,2,0,0,0],[0,0,1,0,2,0,1,0,0],[0,1,0,0,1,0,0,1,0],[2,0,0,0,2,0,0,0,2],[2,2,1,2,3,2,1,2,2],[2,0,0,0,2,0,0,0,2],[0,1,0,0,1,0,0,1,0],[0,0,1,0,2,0,1,0,0],[0,0,0,2,2,2,0,0,0]],
+					[[1,0,1,0,0,0,1,0,1],[0,2,2,2,2,2,2,2,0],[1,0,1,0,0,0,1,0,1],[0,1,1,1,2,1,1,1,0],[0,1,1,2,2,2,1,1,0],[0,1,1,2,3,2,1,1,0],[1,1,1,2,2,2,1,1,1],[0,1,1,1,1,1,1,1,0],[1,0,1,1,0,1,1,0,1]],
+					[[1,0,0,0,1,0,0,0,1],[0,1,0,0,1,0,0,1,0],[0,0,2,2,2,2,2,0,0],[0,0,2,1,1,1,2,0,0],[1,1,2,1,3,1,2,1,1],[0,0,2,1,1,1,2,0,0],[0,0,2,2,2,2,2,0,0],[0,1,0,0,1,0,0,1,0],[1,0,0,0,1,0,0,0,1]]
+				], 
+				[ 
+					[[0,0,0,2,2,2,0,0,0],[0,0,1,2,2,2,1,0,0],[0,1,2,3,1,2,3,1,0],[2,2,3,2,2,3,2,2,2],[2,2,1,2,3,2,1,2,2],[2,2,3,2,2,2,3,2,2],[0,1,2,3,1,3,2,1,0],[0,0,1,2,2,2,1,0,0],[0,0,0,2,2,2,0,0,0]],
+					[[1,0,1,0,0,0,1,0,1],[0,2,2,2,2,2,2,2,0],[1,3,1,0,0,0,1,3,1],[0,1,1,1,3,1,1,1,0],[0,1,2,2,3,2,2,1,0],[0,1,2,2,3,2,2,1,0],[1,1,1,2,3,2,1,1,1],[0,3,1,1,1,1,1,3,0],[1,0,1,1,0,1,1,0,1]],
+					[[2,0,0,0,2,0,0,0,2],[0,2,0,0,2,0,0,2,0],[0,0,3,2,2,2,2,0,0],[0,0,2,1,1,1,2,0,0],[2,2,2,1,3,1,2,1,1],[0,0,2,1,1,1,2,0,0],[0,0,2,2,2,2,2,0,0],[0,2,0,0,2,0,0,2,0],[2,0,0,0,2,0,0,0,2]]
+				] 
+			] 
+		],
+		goNextLevel : function(){
+			if( ! gameStructure.repeatLevel ){
+				gameStructure.setGreen();
+				++gameStructure.currentLevel;
+			}
+			else if( gameStructure.currentLevel == 9 || gameStructure.currentLevel == 19 )
+				gameStructure.currentLevel -= 7;
+			gameStructure.repeatLevel = false;
+			var nextLevel, lvl = gameStructure.currentLevel;
+			if( lvl == 23 ){ //---------------------------------temp--------------------------------
+				alert( "Вы прошли игру. Ваш итоговый счет: " + ball.score );
+				gameStructure.rebootStat();
+				gameStructure.currentLevel = 0; 
+				ball.score = 0;
+			} 
+			console.log( lvl ) ;
+			nextLevel = gameStructure.levels[Math.floor( lvl / 10 )][ lvl % 10 ];
+			( lvl == 2 || lvl == 12 ) && ( gameStructure.currentLevel += 7 );
+			blocks = createLevel( nextLevel[getRandomInt(nextLevel.length) ] ) ;
+		},
+		getLevelBonus : function(){
+			var temp = gameStructure.levelBonuses[ Math.floor(gameStructure.currentLevel / 10) ];
+			return temp[ getRandomInt(temp.length) ];
+		},
+		rebootStat : function(){
+			let temp = gameStructure.currentLevel;
+			if( temp == 19 || 9 ) gameStructure.currentLevel -= 7;
+			for( let i = 0; i < 9; i++ ){
+				document.getElementById( ((temp / 10) + 1) + "." + ( temp % 10 ) ).style = "background: #0000FF";
+			}
+		},
+		setGreen : function(){
+			let temp = gameStructure.currentLevel;
+			if( temp == 19 || temp == 9 ) temp -= 7;
+			console.log( temp );
+			document.getElementById( ( Math.floor( temp / 10 ) + 1 ) + "." + ( ( temp % 10 ) + 1 ) ).style = "background: #00FF00";
+		}
+	});
 
 	let platform = new Object({ // платформа которой игрок отбивает шарик 
 		x : c.width * 13/32, 
@@ -70,9 +132,9 @@ function game(){
 		width : c.width/6,
 		startWidth : c.width/6,
 		startSpeed : c.width/200,
-		speedIncr : c.width / 1500,
+		speedIncr : c.width / 1200,
 		widthIncr : c.width/60,
-		speed : c.width/200, // на сколько пикселей сдвинется платформа за 1 нажатие 
+		speed : c.width/150, // на сколько пикселей сдвинется платформа за 1 нажатие 
 		clearPlatf : function(){
 			this.drawPlatf( "#FFFFFF", this.width + this.speed * 2, this.height + 3 , this.x + -3 );
 		},
@@ -97,6 +159,7 @@ function game(){
 			}
 			cntx.fill();
 		}
+		
 	});
 
 	var ball = new Object({
@@ -111,6 +174,7 @@ function game(){
 		speedIncr : c.width/6000,
 		startRadius : c.width/60,
 		score : 0,
+		levelScore : 0,
 		isCollision : function(x1,y1,w1,h1,x2,y2,w2,h2){
 			return ( x1 < x2 + w2 &&
 					 x1 + w1 > x2 &&
@@ -134,10 +198,11 @@ function game(){
 							else
 								ball.vY *= -1;
 							if( getRandomInt(3) == 0 )
-								bonuses.push( new bonus( brick.x + brick.width/2 , typeOfBonuses[ getRandomInt( typeOfBonuses.length ) ] ) );
+								bonuses.push( new bonus( brick.x + brick.width/2 , gameStructure.getLevelBonus() ) );
 							// Попали в блок
 							brick.hitBlock(); // убираем его
 							ball.score++; // Засчитываем попадение
+							ball.levelScore++;
 							ball.vX > 0 ? ball.vX += ball.speedIncr : ball.vX -= ball.speedIncr; // увеличиваем скорость
 							ball.vY > 0 ? ball.vY += ball.speedIncr : ball.vY -= ball.speedIncr;
 							platform.speed += platform.speedIncr;
@@ -156,14 +221,14 @@ function game(){
 					ball.vX *= -1;
 				else
 					ball.vY *= -1;
-			else if( ball.score == block.prototype.countOfBlocks ) {
-				alert( "Вы выиграли! И за это вы получаете целое ничего!\n Поздравляю! " ) ;
+			else if( ball.levelScore == block.prototype.countOfBlocks ) {
 				Restart();
 			}
 			else if( ball.y > platform.y  ) { // мяч улетел вниз 
 				if( ball.y < c.height )
 					ball.radius -= ball.startRadius/100;
 				else{
+					gameStructure.repeatLevel = true;
 					Restart()
 				}
 			} 
@@ -210,22 +275,24 @@ function game(){
 	}
 
 	function writeScore( value ){
-		cntx.clearRect(0,0,100,25);
-		cntx.font = "16pt Calibri";
-		cntx.fillStyle =  "#00FF00" ;
-		cntx.fillText( "Счет: " + value, 0, 20 ) ;
+		textScore.innerHTML = "Счет: " + value;
 	}
 
 	function Restart(){
 		ball.atachedToPlatform = true; 
 		block.prototype.countOfBlocks = 0;
 		cntx.clearRect(0,0,c.width, c.height);
-		blocks = createLevel(levels[getRandomInt(4)]);
+		//blocks = createLevel(levels[getRandomInt(4)]);
+		
 		platform.width = platform.startWidth;
 		platform.speed = platform.startSpeed;
 		ball.vX = ball.startV;
 		ball.vY = ball.startV;
-		ball.score = 0;
+
+		if( gameStructure.repeatLevel )
+			ball.score -= ball.levelScore;			
+		ball.levelScore = 0;
+		gameStructure.goNextLevel();
 		bonuses = [];
 		Math.random() > 0.5 && ( ball.vX *= -1 );
 
@@ -259,7 +326,7 @@ function game(){
 	function drawImg( block ){
 		var imgFirst= new Image();
 		imgFirst.addEventListener("load",function(){
-			cntx.drawImage(imgFirst, 50, 50, block.width * 5,block.height * 5,block.x,block.y,block.width,block.height );
+			cntx.drawImage(imgFirst, 100, 100, block.width ,block.height ,block.x,block.y,block.width,block.height );
 		});
 
 		imgFirst.src = imgListForBlocks[block.currentHp-1];
@@ -281,20 +348,15 @@ function game(){
 	//let blocks = [ new block(),new block(1),new block(-1) ]; // старая версия установки блоков
 	
 	function createLevel( array ){ // создает массив блоков на основе карты 
-		let resArray = [[],[],[],[],[],[],[]];
+		let resArray = [[],[],[],[],[],[],[],[],[]];
+		let width = c.width / ( array.length + 1 );
+		let height = c.height / ( ( array.length + 1 ) * 3 );
 		let imgVal = getRandomInt(imgListForBlocks.length);
-		for( let i = -3, k = 0; k < 7; i++, k++ ){
-			for( let j = -3, l = 0; l < 7; j++, l++ ){
+		for( let i = -Math.floor(array.length/2), k = 0; k < array.length; i++, k++ ){
+			for( let j = -Math.floor(array[k].length/2), l = 0; l < array[k].length ; j++, l++ ){
 				if( array[k][l] != 0 ){
-					resArray[k][l] = new block(j,i, array[k][l]);
+					resArray[k][l] = new block( j, i, array[k][l], width, height);
 					block.prototype.countOfBlocks += array[k][l];
-					// ставим картинку
-					/*var imgFirst= new Image();
-					imgFirst.addEventListener("load",function(){
-						cntx.drawImage(imgFirst, 50, 50, resArray[k][l].width * 5,resArray[k][l].height * 5,resArray[k][l].x,resArray[k][l].y,resArray[k][l].width,resArray[k][l].height );
-					});
-
-					imgFirst.src = imgListForBlocks[imgVal];*/
 				}
 			}
 		}
@@ -302,7 +364,7 @@ function game(){
 	}
 
 	// Бонусы
-	function bonus( x , kindActivity = "None",  y = c.height * 2/6, width = c.width / 30, height = c.width / 30 ){
+	function bonus( x , kindActivity = "None",  y = c.height * 2/6 + 50, width = c.width / 30, height = c.width / 30 ){
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -349,6 +411,7 @@ function game(){
 		
 	}
 	bonus.prototype.hit = function(){
+		platform.clearPlatf();
 		switch( this.kindActivity ) {
 			case "widthIncr":
 				platform.width += platform.widthIncr * 2;
@@ -373,9 +436,7 @@ function game(){
 
 			if( bonuses[k].y + bonuses[k].height > platform.y )
 				if( bonuses[k].x + bonuses[k].width > platform.x && bonuses[k].x - bonuses[k].width < platform.x + platform.width && ! bonuses[k].hitStatus ){
-					console.log( platform.speed + " " + platform.width );
 					bonuses[k].hit() ;
-					console.log( platform.speed + " " + platform.width );
 					bonuses[k].hitStatus = true;
 				}
 				else 
@@ -482,7 +543,7 @@ function game(){
 		})();
 
 		var startGame = function() {
-
+			//gameStructure.currentLevel = 21;
 			gameLoop();
 			Restart();
 		}
